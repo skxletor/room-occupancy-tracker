@@ -1,2 +1,2 @@
-# room-occupancy-tracker
+# Room Occupancy Tracker
 its in the name!!!
