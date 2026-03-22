@@ -19,6 +19,16 @@ const int SDA_PIN= 21;
 const int SCL_PIN= 22;
 const int XSHUT1_PIN= 23;
 const int XSHUT2_PIN= 32;
+uint16_t initDist;
+
+enum State{
+  IDLE_SHUT,
+  IDLE_OPEN,
+  DETECTING,
+  PROCESSING
+};
+State currentState = IDLE_SHUT;
+State prevState = IDLE_SHUT;
 
 
 void setup() {
@@ -65,13 +75,13 @@ void setup() {
   
   sensor1.setDistanceMode(VL53L1X::Medium);
   sensor2.setDistanceMode(VL53L1X::Medium);
-
+  initDist = sensor1.read();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  double dist1 = sensor1.ranging_data.range_mm;
-  double dist2 = sensor2.ranging_data.range_mm;
+  uint16_t dist1 = sensor1.read();
+  uint16_t dist2 = sensor2.read();
 }
 
 // put function definitions here:
