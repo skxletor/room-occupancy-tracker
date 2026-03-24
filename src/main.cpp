@@ -82,7 +82,6 @@ void setup() {
     Serial.println(sensor1.getAddress(), HEX);
   } else {
     Serial.println("ERROR: Sensor 1 failed to initialize!");
-    Serial.println("Check wiring: SDA=21, SCL=22, XSHUT1=23");
   }
 
   // Bring up sensor 2 and assign address
@@ -98,13 +97,8 @@ void setup() {
     Serial.println(sensor2.getAddress(), HEX);
   } else {
     Serial.println("ERROR: Sensor 2 failed to initialize!");
-    Serial.println("Check wiring: SDA=21, SCL=22, XSHUT2=32");
   }
 
-  // Scan I2C bus to verify sensors are actually present
-  Serial.println("\n--- I2C Bus Scan ---");
-  scanI2C();
-  Serial.println("--- End Scan ---\n");
 
   initDist = sensor1.read();
   Serial.print("Initial distance: ");
@@ -122,24 +116,41 @@ void loop() {
     Serial.println("Sensor 2 TIMEOUT");
   }
 
-  Serial.print("Sensor 1: ");
-  Serial.print(dist1);
-  Serial.print(" mm  |  Sensor 2: ");
-  Serial.print(dist2);
-  Serial.println(" mm");
 
-  delay(100);
+  if ((dist1 > 2050) && (dist2 > 2050))
+  {
+    currentState=IDLE_SHUT;
+    Serial.print(currentState);
+  }
+  else if (dist1 <2050)
+  {
+    if (dist2<2050)
+    {
+      prevState=IDLE_SHUT;
+      currentState=PROCESSING;
+    Serial.print(currentState);
+    Serial.println("prev state:");
+    Serial.print(prevState);
+    }
+    
+  }
+  
+  
+
+//printing the distance (for testing)
+//----------------------------------------------------
+
+  // Serial.print("Sensor 1: ");
+  // Serial.print(dist1);
+  // Serial.print(" mm  |  Sensor 2: ");
+  // Serial.print(dist2-30);
+  // Serial.println(" mm");
+
+//----------------------------------------------------
+
+
+
+  delay(10);
 }
 
 // put function definitions here:
-void scanI2C() {
-  for (uint8_t addr = 1; addr < 127; addr++) {
-    Wire.beginTransmission(addr);
-    uint8_t error = Wire.endTransmission();
-    if (error == 0) {
-      Serial.print("  Device found at 0x");
-      if (addr < 16) Serial.print("0");
-      Serial.println(addr, HEX);
-    }
-  }
-}
