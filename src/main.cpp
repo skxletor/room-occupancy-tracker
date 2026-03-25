@@ -41,7 +41,7 @@ bool detectingTorF=true;
 int wallDist;
 
 //when you have the door distance (idle) put that in this variable
-
+//doorDist=wallDist-(amt in mm)
 int doorDist;
 
 int count=0;
@@ -150,6 +150,8 @@ void loop() {
 
   //cook sum up twin
 
+  //when you add the door logic, basically clone the two if statements below and add a switch for case IDLE_SHUT and IDLE_OPEN
+
   //entering counter
   if (s1Covered==true)
   {
@@ -175,7 +177,12 @@ void loop() {
   }
   else if ((leaveBool==true)&&s1Covered)
   {
+    if (count==0){
+      count=0;
+    }
+    else{
     count--;
+    }
     Serial.println("People in room: ");
     Serial.print(count);
     //for the condition could i do (!(dis1&&dist2)>wallDist)
