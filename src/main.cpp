@@ -146,6 +146,9 @@ void loop() {
     s1Covered=true;
     Serial.println("2 covered");
   }
+
+  //cook sum up twin
+  
   
 
   
