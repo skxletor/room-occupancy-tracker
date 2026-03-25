@@ -12,7 +12,6 @@ const char* password = "UniGAJR123$$";
 const char* serverURL = "url for the esp occupancy";
 
 // put function declarations here:
-void scanI2C();
 
 VL53L1X sensor1;
 VL53L1X sensor2;
