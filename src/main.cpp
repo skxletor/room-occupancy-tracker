@@ -135,20 +135,57 @@ void loop() {
 
   bool s1Covered=false;
   bool s2Covered=false;
+  bool enterBool=false;
+  bool leaveBool=false;
 
   if (dist1<wallDist)
   {
     s1Covered=true;
-    Serial.println("1 covered");
+    // Serial.println("1 covered");
   }
   if (dist2<wallDist)
   {
     s1Covered=true;
-    Serial.println("2 covered");
+    // Serial.println("2 covered");
   }
 
   //cook sum up twin
+
+  //entering counter
+  if (s1Covered==true)
+  {
+    enterBool=true;
+  }
+  else if ((enterBool==true)&&s2Covered)
+  {
+    count++;
+    Serial.println("People in room: ");
+    Serial.print(count);
+    //for the condition could i do (!(dis1&&dist2)>wallDist)
+    while ((s1Covered==true)||(s2Covered==true))
+    {
+      delay(10);
+    }
   
+  }
+  
+  //leaving counter
+  if (s2Covered==true)
+  {
+    leaveBool=true;
+  }
+  else if ((leaveBool==true)&&s1Covered)
+  {
+    count--;
+    Serial.println("People in room: ");
+    Serial.print(count);
+    //for the condition could i do (!(dis1&&dist2)>wallDist)
+    while ((s1Covered==true)||(s2Covered==true))
+    {
+      delay(10);
+    }
+  
+  }
   
 
   
