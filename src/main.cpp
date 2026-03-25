@@ -31,7 +31,6 @@ enum State{
 };
 
 State currentState = IDLE_SHUT;
-State prevState = IDLE_SHUT;
 
 
 //0 or false is detecting (still detecting if people are entering) 1 or true is processing is finished
@@ -39,8 +38,8 @@ bool detectingTorF=true;
 
 
 //the distance to the wall, subject to change
-int wallDist=2050;
 
+int wallDist;
 
 //when you have the door distance (idle) put that in this variable
 
@@ -117,6 +116,7 @@ void setup() {
 
 
   initDist = sensor1.read();
+  wallDist=initDist-15;
   Serial.print("Initial distance: ");
   Serial.println(initDist);
 }
@@ -133,75 +133,92 @@ void loop() {
   }
 
 
-  if ((dist1 > wallDist) && (dist2 > wallDist))
+  bool s1Covered=false;
+  bool s2Covered=false;
+
+  if (dist1<wallDist)
   {
-    currentState=IDLE_SHUT;
-    Serial.println("nothing");
+    s1Covered=true;
+    Serial.println("1 covered");
   }
-  //maybe add second nested iff that says if both are less than
-  else if (dist1 <wallDist && dist2>wallDist && (currentState == IDLE_SHUT||currentState == IDLE_OPEN))
+  if (dist2<wallDist)
   {
-    if (currentState == IDLE_SHUT)
-    {
-      prevState = IDLE_SHUT;
-    }
-    else if (currentState == IDLE_OPEN){
-      prevState = IDLE_OPEN;
-    }
-    
-    
-    currentState=ENTERING;
-    count += 1;
-    Serial.println("People in room: ");
-    Serial.print(count);
-    while(!((dist1 > wallDist) && (dist2 > wallDist)||(dist1 > doorDist) && (dist2 > doorDist))){
-      delay(10);
-    }
-    
-
-    if ((dist1 && dist2)>wallDist)
-    {
-      currentState=IDLE_SHUT;
-    }
-    else if (wallDist>(dist1 && dist2)>doorDist)
-    {
-      currentState=IDLE_OPEN;
-    }
-    prevState=ENTERING;
-    
+    s1Covered=true;
+    Serial.println("2 covered");
   }
+  
 
-  else if (dist1 > wallDist && dist2<wallDist && (currentState == IDLE_SHUT||currentState == IDLE_OPEN))
-  {
-    if (currentState == IDLE_SHUT)
-    {
-      prevState = IDLE_SHUT;
-    }
-    else if (currentState == IDLE_OPEN){
-      prevState = IDLE_OPEN;
-    }
+  
 
-    currentState=LEAVING;
-    count -= 1;
-    Serial.println("People in room: ");
-    Serial.print(count);
-    while(!((dist1 > wallDist) && (dist2 > wallDist)||(dist1 > doorDist) && (dist2 > doorDist))){
-      delay(10);
-    }
+  // if ((dist1 > wallDist) && (dist2 > wallDist))
+  // {
+  //   currentState=IDLE_SHUT;
+  //   // Serial.println("nothing");
+  // }
+  // //maybe add s1 blocked or s2 blocked
+  // else if (dist1 <wallDist && dist2>wallDist && (currentState == IDLE_SHUT||currentState == IDLE_OPEN))
+  // {
+  //   if (currentState == IDLE_SHUT)
+  //   {
+  //     prevState = IDLE_SHUT;
+  //   }
+  //   else if (currentState == IDLE_OPEN){
+  //     prevState = IDLE_OPEN;
+  //   }
+    
+    
+  //   currentState=ENTERING;
+  //   count++;
+  //   Serial.println("People in room: ");
+  //   Serial.print(count);
+  //   while(!((dist1 > wallDist) && (dist2 > wallDist)||(dist1 > doorDist) && (dist2 > doorDist))){
+  //     delay(10);
+  //   }
+    
 
-    if ((dist1 && dist2)>wallDist)
-    {
-      currentState=IDLE_SHUT;
-    }
-    else if (wallDist>(dist1 && dist2)>doorDist)
-    {
-      currentState=IDLE_OPEN;
-    }
-    prevState=LEAVING;
+  //   if ((dist1 && dist2)>wallDist)
+  //   {
+  //     currentState=IDLE_SHUT;
+  //   }
+  //   else if (wallDist>(dist1 && dist2)>doorDist)
+  //   {
+  //     currentState=IDLE_OPEN;
+  //   }
+  //   prevState=ENTERING;
+    
+  // }
+
+  // else if (dist1 > wallDist && dist2<wallDist && (currentState == IDLE_SHUT||currentState == IDLE_OPEN))
+  // {
+  //   if (currentState == IDLE_SHUT)
+  //   {
+  //     prevState = IDLE_SHUT;
+  //   }
+  //   else if (currentState == IDLE_OPEN){
+  //     prevState = IDLE_OPEN;
+  //   }
+
+  //   currentState=LEAVING;
+  //   count--;
+  //   Serial.println("People in room: ");
+  //   Serial.print(count);
+  //   while(!((dist1 > wallDist) && (dist2 > wallDist)||(dist1 > doorDist) && (dist2 > doorDist))){
+  //     delay(10);
+  //   }
+
+  //   if ((dist1 && dist2)>wallDist)
+  //   {
+  //     currentState=IDLE_SHUT;
+  //   }
+  //   else if (wallDist>(dist1 && dist2)>doorDist)
+  //   {
+  //     currentState=IDLE_OPEN;
+  //   }
+  //   prevState=LEAVING;
     
     
     
-  }
+  // }
 
 
   
