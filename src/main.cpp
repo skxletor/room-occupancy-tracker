@@ -169,17 +169,18 @@ void loop() {
   switch (currentState)
   {
   case IDLE_SHUT:
-  if (s1Covered) {
+  if (s1Covered&&!s2Covered) {
     Serial.print("IDLE->ENTERING  d1="); Serial.print(dist1);
     Serial.print(" d2="); Serial.println(dist2);
     currentState = ENTERING;
-  } else if (s2Covered) {
+  } else if (s2Covered&&!s1Covered) {
     Serial.print("IDLE->LEAVING  d1="); Serial.print(dist1);
     Serial.print(" d2="); Serial.println(dist2);
     currentState = LEAVING;
   }
   break;
   case ENTERING:
+  delay(10);
     if(s2Covered){
       count++;
       Serial.println("People in room: ");
@@ -190,6 +191,7 @@ void loop() {
     }
     break;
   case LEAVING:
+  delay(10);
     if(s1Covered){
       count--;
       Serial.println("People in room: ");
@@ -210,155 +212,7 @@ void loop() {
   default:
     break;
   }
-  //entering counter
-  // if (s1Covered==true)
-  // {
-  //   enterBool=true;
-  //   Serial.println("Sensor 1 covered");
-  // }
-  // if ((enterBool==true)&&s2Covered)
-  // {
-  //   count++;
-  //   Serial.println("People in room: ");
-  //   Serial.print(count);
-
-  //   if (dist1>wallDist)
-  //   {
-  //     s1Covered=false;
-  //   }
-  //   if (dist2>wallDist)
-  //   {
-  //     s2Covered=false;
-  //   }
-  //   //for the condition could i do (!(dis1&&dist2)>wallDist)
-  //   while ((s1Covered==true)||(s2Covered==true))
-  //   {
-  //     delay(10);
-  //     dist1=sensor1.read();
-  //     dist2=sensor2.read();
-  //     if (dist1>wallDist)
-  //     {
-  //       s1Covered=false;
-  //     }
-  //     if (dist2>wallDist)
-  //     {
-  //       s2Covered=false;
-  //     }
-  //   }
-
-  // }
   
-  // //leaving counter
-  // if (s2Covered==true)
-  // {
-  //   leaveBool=true;
-  //   Serial.println("Sensor 2 covered");
-  // }
-  // if ((leaveBool==true)&&s1Covered)
-  // {
-  //   if (count==0){
-  //     count=0;
-  //   }
-  //   else{
-  //   count--;
-  //   }
-  //   Serial.println("People in room: ");
-  //   Serial.print(count);
-
-
-
-  //   //for the condition could i do (!(dis1&&dist2)>wallDist)
-  //   while ((s1Covered==true)||(s2Covered==true))
-  //   {
-  //     delay(10);
-  //     dist1=sensor1.read();
-  //     dist2=sensor2.read();
-  //     if (dist1>wallDist)
-  //     {
-  //       s1Covered=false;
-  //     }
-  //     if (dist2>wallDist)
-  //     {
-  //       s2Covered=false;
-  //     }
-  //   }
-
-  // }
-  
-
-  
-
-  // if ((dist1 > wallDist) && (dist2 > wallDist))
-  // {
-  //   currentState=IDLE_SHUT;
-  //   // Serial.println("nothing");
-  // }
-  // //maybe add s1 blocked or s2 blocked
-  // else if (dist1 <wallDist && dist2>wallDist && (currentState == IDLE_SHUT||currentState == IDLE_OPEN))
-  // {
-  //   if (currentState == IDLE_SHUT)
-  //   {
-  //     prevState = IDLE_SHUT;
-  //   }
-  //   else if (currentState == IDLE_OPEN){
-  //     prevState = IDLE_OPEN;
-  //   }
-    
-    
-  //   currentState=ENTERING;
-  //   count++;
-  //   Serial.println("People in room: ");
-  //   Serial.print(count);
-  //   while(!((dist1 > wallDist) && (dist2 > wallDist)||(dist1 > doorDist) && (dist2 > doorDist))){
-  //     delay(10);
-  //   }
-    
-
-  //   if ((dist1 && dist2)>wallDist)
-  //   {
-  //     currentState=IDLE_SHUT;
-  //   }
-  //   else if (wallDist>(dist1 && dist2)>doorDist)
-  //   {
-  //     currentState=IDLE_OPEN;
-  //   }
-  //   prevState=ENTERING;
-    
-  // }
-
-  // else if (dist1 > wallDist && dist2<wallDist && (currentState == IDLE_SHUT||currentState == IDLE_OPEN))
-  // {
-  //   if (currentState == IDLE_SHUT)
-  //   {
-  //     prevState = IDLE_SHUT;
-  //   }
-  //   else if (currentState == IDLE_OPEN){
-  //     prevState = IDLE_OPEN;
-  //   }
-
-  //   currentState=LEAVING;
-  //   count--;
-  //   Serial.println("People in room: ");
-  //   Serial.print(count);
-  //   while(!((dist1 > wallDist) && (dist2 > wallDist)||(dist1 > doorDist) && (dist2 > doorDist))){
-  //     delay(10);
-  //   }
-
-  //   if ((dist1 && dist2)>wallDist)
-  //   {
-  //     currentState=IDLE_SHUT;
-  //   }
-  //   else if (wallDist>(dist1 && dist2)>doorDist)
-  //   {
-  //     currentState=IDLE_OPEN;
-  //   }
-  //   prevState=LEAVING;
-    
-    
-    
-  // }
-
-
   
   
 
