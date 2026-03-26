@@ -38,14 +38,14 @@ bool detectingTorF=true;
 
 bool s1Covered=false;
 bool s2Covered=false;
-bool enterBool=false;
-bool leaveBool=false;
 
 
 //the distance to the wall, subject to change
 
 int wallDist;
 const int threshold=1250;
+
+//i can reuse this for changing from detecting to finished
 unsigned long stateStartTime = 0;
 
 
