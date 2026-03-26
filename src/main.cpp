@@ -184,8 +184,15 @@ void loop() {
     currentState = LEAVING;
     stateStartTime = millis();
   } else if (s2Covered&&!s1Covered&&doorOpen&&personDone) {
-    // person done, this is the door closing
+    // person done, this is the door closing (s2 first)
     currentState = LEAVING_DOOR;
+    stateStartTime = millis();
+  } else if (s1Covered&&!s2Covered&&doorOpen&&personDone) {
+    // person done, door closing from s1 side (reverse of LEAVING_DOOR)
+    Serial.println("DOOR CLOSE TICK (s1 first)");
+    doorOpen=false;
+    personDone=false;
+    currentState=WAIT_CLEAR;
     stateStartTime = millis();
   }
   break;
@@ -264,12 +271,14 @@ void loop() {
     break;
   case WAIT_CLEAR:
     if(!s1Covered&&!s2Covered){
-      if((dist1>wallDist)&&(dist2>wallDist)){
-        currentState = IDLE_SHUT;}
-      else {
-        // door is propped open
-        doorOpen=false;
-        personDone=false;
+      if(doorOpen){
+        // still tracking a door cycle, go back to IDLE_SHUT
+        // to wait for the next person or door-close event
+        currentState = IDLE_SHUT;
+      } else if((dist1>wallDist)&&(dist2>wallDist)){
+        currentState = IDLE_SHUT;
+      } else {
+        // door is propped open, no door ticks needed
         currentState = IDLE_OPEN;
       }
     }
