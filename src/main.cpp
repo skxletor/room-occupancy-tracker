@@ -161,9 +161,6 @@ void loop() {
     s2Covered=false;
   }
 
-  
-//when you add the door logic, basically clone the two if statements below and add a switch for case IDLE_SHUT and IDLE_OPEN
-
 
 //choosing state
 
