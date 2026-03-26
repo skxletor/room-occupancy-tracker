@@ -27,6 +27,7 @@ enum State{
   IDLE_OPEN,
   ENTERING,
   LEAVING,
+  WAIT_CLEAR
 };
 
 State currentState = IDLE_SHUT;
@@ -35,10 +36,16 @@ State currentState = IDLE_SHUT;
 //0 or false is detecting (still detecting if people are entering) 1 or true is processing is finished
 bool detectingTorF=true;
 
+bool s1Covered=false;
+bool s2Covered=false;
+bool enterBool=false;
+bool leaveBool=false;
+
 
 //the distance to the wall, subject to change
 
 int wallDist;
+const int threshold=750;
 
 //when you have the door distance (idle) put that in this variable
 //doorDist=wallDist-(amt in mm)
@@ -132,66 +139,151 @@ void loop() {
   }
 
 
-  bool s1Covered=false;
-  bool s2Covered=false;
-  bool enterBool=false;
-  bool leaveBool=false;
+ 
 
-  if (dist1<wallDist)
+  if (dist1<threshold)
   {
     s1Covered=true;
     // Serial.println("1 covered");
   }
-  if (dist2<wallDist)
+  else{
+    s1Covered=false;
+  }
+  if (dist2<threshold)
   {
-    s1Covered=true;
+    s2Covered=true;
     // Serial.println("2 covered");
+  }
+  else{
+    s2Covered=false;
   }
 
   //cook sum up twin
 
   //when you add the door logic, basically clone the two if statements below and add a switch for case IDLE_SHUT and IDLE_OPEN
+//choosing state
 
+
+
+
+  switch (currentState)
+  {
+  case IDLE_SHUT:
+  if (s1Covered) {
+    Serial.print("IDLE->ENTERING  d1="); Serial.print(dist1);
+    Serial.print(" d2="); Serial.println(dist2);
+    currentState = ENTERING;
+  } else if (s2Covered) {
+    Serial.print("IDLE->LEAVING  d1="); Serial.print(dist1);
+    Serial.print(" d2="); Serial.println(dist2);
+    currentState = LEAVING;
+  }
+  break;
+  case ENTERING:
+    if(s2Covered){
+      count++;
+      Serial.println("People in room: ");
+      Serial.print(count);
+      Serial.println("ENTERING");
+      //when you add IDLE_OPEN, just add an if statement if (dist==wallDist) or (dist==doorDist)
+      currentState=WAIT_CLEAR;
+    }
+    break;
+  case LEAVING:
+    if(s1Covered){
+      count--;
+      Serial.println("People in room: ");
+      Serial.print(count);
+      Serial.println("LEAVING");
+      //when you add IDLE_OPEN, just add an if statement if (dist==wallDist) or (dist==doorDist)
+      currentState=WAIT_CLEAR;
+      
+    }
+    break;
+  case WAIT_CLEAR:
+    if(!s1Covered&&!s2Covered){
+      currentState = IDLE_SHUT;
+      Serial.println("WAIT_CLEAR");
+    }
+    break;
+  
+  default:
+    break;
+  }
   //entering counter
-  if (s1Covered==true)
-  {
-    enterBool=true;
-  }
-  else if ((enterBool==true)&&s2Covered)
-  {
-    count++;
-    Serial.println("People in room: ");
-    Serial.print(count);
-    //for the condition could i do (!(dis1&&dist2)>wallDist)
-    while ((s1Covered==true)||(s2Covered==true))
-    {
-      delay(10);
-    }
+  // if (s1Covered==true)
+  // {
+  //   enterBool=true;
+  //   Serial.println("Sensor 1 covered");
+  // }
+  // if ((enterBool==true)&&s2Covered)
+  // {
+  //   count++;
+  //   Serial.println("People in room: ");
+  //   Serial.print(count);
+
+  //   if (dist1>wallDist)
+  //   {
+  //     s1Covered=false;
+  //   }
+  //   if (dist2>wallDist)
+  //   {
+  //     s2Covered=false;
+  //   }
+  //   //for the condition could i do (!(dis1&&dist2)>wallDist)
+  //   while ((s1Covered==true)||(s2Covered==true))
+  //   {
+  //     delay(10);
+  //     dist1=sensor1.read();
+  //     dist2=sensor2.read();
+  //     if (dist1>wallDist)
+  //     {
+  //       s1Covered=false;
+  //     }
+  //     if (dist2>wallDist)
+  //     {
+  //       s2Covered=false;
+  //     }
+  //   }
+
+  // }
   
-  }
-  
-  //leaving counter
-  if (s2Covered==true)
-  {
-    leaveBool=true;
-  }
-  else if ((leaveBool==true)&&s1Covered)
-  {
-    if (count==0){
-      count=0;
-    }
-    else{
-    count--;
-    }
-    Serial.println("People in room: ");
-    Serial.print(count);
-    //for the condition could i do (!(dis1&&dist2)>wallDist)
-    while ((s1Covered==true)||(s2Covered==true))
-    {
-      delay(10);
-    }
-  
-  }
+  // //leaving counter
+  // if (s2Covered==true)
+  // {
+  //   leaveBool=true;
+  //   Serial.println("Sensor 2 covered");
+  // }
+  // if ((leaveBool==true)&&s1Covered)
+  // {
+  //   if (count==0){
+  //     count=0;
+  //   }
+  //   else{
+  //   count--;
+  //   }
+  //   Serial.println("People in room: ");
+  //   Serial.print(count);
+
+
+
+  //   //for the condition could i do (!(dis1&&dist2)>wallDist)
+  //   while ((s1Covered==true)||(s2Covered==true))
+  //   {
+  //     delay(10);
+  //     dist1=sensor1.read();
+  //     dist2=sensor2.read();
+  //     if (dist1>wallDist)
+  //     {
+  //       s1Covered=false;
+  //     }
+  //     if (dist2>wallDist)
+  //     {
+  //       s2Covered=false;
+  //     }
+  //   }
+
+  // }
   
 
   
