@@ -125,6 +125,7 @@ void setup() {
 
   initDist = sensor1.read();
   wallDist=initDist-15;
+  doorDist=wallDist-45;
   Serial.print("Initial distance: ");
   Serial.println(initDist);
 }
@@ -209,7 +210,7 @@ void loop() {
       // Serial.println("ENTERING");
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
-      if (dist1>wallDist||dist2>wallDist){
+      if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
       else if ((wallDist>dist1>doorDist)||(wallDist>dist2>doorDist)){
         currentState = IDLE_OPEN;}
@@ -228,7 +229,7 @@ void loop() {
       // Serial.println("LEAVING");
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
-      if (dist1>wallDist||dist2>wallDist){
+      if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
       else if ((wallDist>dist1>doorDist)||(wallDist>dist2>doorDist)){
         currentState = IDLE_OPEN;}
@@ -237,12 +238,14 @@ void loop() {
   case WAIT_CLEAR:
     // Serial.print("WAITING  d1="); Serial.print(dist1);
     // Serial.print(" d2="); Serial.println(dist2);
-    if(!s1Covered&&!s2Covered&&(dist1>wallDist)&&(dist2>wallDist)){
-      currentState = IDLE_SHUT;
+    if(!s1Covered&&!s2Covered){
+      if((dist1>wallDist)&&(dist2>wallDist)){
+        currentState = IDLE_SHUT;}
+      else {
+        currentState = IDLE_OPEN;
+      }
     }
-    else if(!s1Covered&&!s2Covered&&(wallDist>dist1>doorDist)&&(wallDist>dist2>doorDist)){
-      currentState = IDLE_OPEN;
-    }
+    
     break;
   
   default:
