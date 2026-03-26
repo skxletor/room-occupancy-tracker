@@ -27,10 +27,10 @@ enum State{
   IDLE_OPEN,
   ENTERING,
   ENTERING_DOOR,
-  ENTERING_PERSON,
+  // ENTERING_PERSON,
   LEAVING,
   LEAVING_DOOR,
-  LEAVING_PERSON,
+  // LEAVING_PERSON,
   WAIT_CLEAR
 };
 
@@ -43,6 +43,8 @@ bool detectingTorF=true;
 bool s1Covered=false;
 bool s2Covered=false;
 
+bool enterbool=false;
+bool leavebool=false;
 
 //the distance to the wall, subject to change
 
@@ -171,17 +173,30 @@ void loop() {
   switch (currentState)
   {
   case IDLE_SHUT:
-  if (s1Covered&&!s2Covered) {
+  if (s1Covered&&!s2Covered&&enterbool) {
     // Serial.print("IDLE_SHUT->ENTERING  d1="); Serial.print(dist1);
     // Serial.print(" d2="); Serial.println(dist2);
     currentState = ENTERING;
     stateStartTime = millis();
 
+  }else if (s1Covered&&!s2Covered) {
+    // Serial.print("IDLE_SHUT->ENTERING  d1="); Serial.print(dist1);
+    // Serial.print(" d2="); Serial.println(dist2);
+    currentState = ENTERING_DOOR;
+    stateStartTime = millis();
+
   } 
-  else if (s2Covered&&!s1Covered) {//the else was commented out
+  else if (s2Covered&&!s1Covered&&leavebool) {//the else was commented out
     // Serial.print("IDLE_SHUT->LEAVING  d1="); Serial.print(dist1);
     // Serial.print(" d2="); Serial.println(dist2);
     currentState = LEAVING;
+    stateStartTime = millis();
+
+  }
+  else if (s2Covered&&!s1Covered) {//the else was commented out
+    // Serial.print("IDLE_SHUT->LEAVING  d1="); Serial.print(dist1);
+    // Serial.print(" d2="); Serial.println(dist2);
+    currentState = LEAVING_DOOR;
     stateStartTime = millis();
 
   }
@@ -202,24 +217,55 @@ void loop() {
 
   }
   break;
+  case ENTERING_DOOR:
+    delay(10);
+    if(s2Covered){
+      Serial.println("DOOR ENTER TICK");
+      enterbool=true;
+      currentState=IDLE_SHUT;
+      //not sure about this statement
+    } else if (millis() - stateStartTime > 2000) {
+      if ((dist1>wallDist)||(dist2>wallDist)){
+        currentState = IDLE_SHUT;}
+      else{
+        currentState = IDLE_OPEN;}
+    }
+  break;
   case ENTERING:
-  delay(10);
+    delay(10);
     if(s2Covered){
       count++;
       Serial.println("People in room: ");
       Serial.print(count);
       // Serial.println("ENTERING");
+      enterbool=false;
       currentState=WAIT_CLEAR;
       //not sure about this statement
     } else if (millis() - stateStartTime > 2000) {
       if ((dist1>wallDist)||(dist2>wallDist)){
+        enterbool=false;
         currentState = IDLE_SHUT;}
-      else if ((wallDist>dist1>doorDist)||(wallDist>dist2>doorDist)){
+      else{
+        enterbool=false;
         currentState = IDLE_OPEN;}
     }
     break;
+  case LEAVING_DOOR:
+    delay(10);
+    if(s1Covered){
+      Serial.println("DOOR LEAVE TICK");
+      leavebool=true;
+      currentState=IDLE_SHUT;
+      //not sure about this statement
+    } else if (millis() - stateStartTime > 2000) {
+      if ((dist1>wallDist)||(dist2>wallDist)){
+        currentState = IDLE_SHUT;}
+      else{
+        currentState = IDLE_OPEN;}
+    }
+  break;  
   case LEAVING:
-  delay(10);
+    delay(10);
     if(s1Covered){
       if(count==0){
         count = 0;
@@ -229,12 +275,15 @@ void loop() {
       Serial.println("People in room: ");
       Serial.print(count);
       // Serial.println("LEAVING");
+      leavebool=false;
       currentState=WAIT_CLEAR;
       //not sure about this statement
     } else if (millis() - stateStartTime > 2000) {
       if ((dist1>wallDist)||(dist2>wallDist)){
+        leavebool=false;
         currentState = IDLE_SHUT;}
-      else if ((wallDist>dist1>doorDist)||(wallDist>dist2>doorDist)){
+      else{
+        leavebool=false;
         currentState = IDLE_OPEN;}
     }
     break;
