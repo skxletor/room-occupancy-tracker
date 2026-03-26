@@ -210,6 +210,7 @@ void loop() {
       Serial.print(count);
       // Serial.println("ENTERING");
       currentState=WAIT_CLEAR;
+      //not sure about this statement
     } else if (millis() - stateStartTime > 2000) {
       if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
@@ -229,6 +230,7 @@ void loop() {
       Serial.print(count);
       // Serial.println("LEAVING");
       currentState=WAIT_CLEAR;
+      //not sure about this statement
     } else if (millis() - stateStartTime > 2000) {
       if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
