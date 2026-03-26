@@ -45,7 +45,9 @@ bool leaveBool=false;
 //the distance to the wall, subject to change
 
 int wallDist;
-const int threshold=750;
+const int threshold=1250;
+unsigned long stateStartTime = 0;
+
 
 //when you have the door distance (idle) put that in this variable
 //doorDist=wallDist-(amt in mm)
@@ -170,13 +172,18 @@ void loop() {
   {
   case IDLE_SHUT:
   if (s1Covered&&!s2Covered) {
-    Serial.print("IDLE->ENTERING  d1="); Serial.print(dist1);
-    Serial.print(" d2="); Serial.println(dist2);
+    // Serial.print("IDLE->ENTERING  d1="); Serial.print(dist1);
+    // Serial.print(" d2="); Serial.println(dist2);
     currentState = ENTERING;
-  } else if (s2Covered&&!s1Covered) {
-    Serial.print("IDLE->LEAVING  d1="); Serial.print(dist1);
-    Serial.print(" d2="); Serial.println(dist2);
+    stateStartTime = millis();
+
+  } 
+  else if (s2Covered&&!s1Covered) {//the else was commented out
+    // Serial.print("IDLE->LEAVING  d1="); Serial.print(dist1);
+    // Serial.print(" d2="); Serial.println(dist2);
     currentState = LEAVING;
+    stateStartTime = millis();
+
   }
   break;
   case ENTERING:
@@ -188,24 +195,33 @@ void loop() {
       Serial.println("ENTERING");
       //when you add IDLE_OPEN, just add an if statement if (dist==wallDist) or (dist==doorDist)
       currentState=WAIT_CLEAR;
+    } else if (millis() - stateStartTime > 2000) {
+        currentState = IDLE_SHUT;
     }
     break;
   case LEAVING:
   delay(10);
     if(s1Covered){
-      count--;
+      if(count==0){
+        count = 0;
+      }else{
+        count--;
+      }
       Serial.println("People in room: ");
       Serial.print(count);
       Serial.println("LEAVING");
       //when you add IDLE_OPEN, just add an if statement if (dist==wallDist) or (dist==doorDist)
       currentState=WAIT_CLEAR;
       
+    } else if (millis() - stateStartTime > 2000) {
+        currentState = IDLE_SHUT;
     }
     break;
   case WAIT_CLEAR:
+    // Serial.print("WAITING  d1="); Serial.print(dist1);
+    // Serial.print(" d2="); Serial.println(dist2);
     if(!s1Covered&&!s2Covered){
       currentState = IDLE_SHUT;
-      Serial.println("WAIT_CLEAR");
     }
     break;
   
