@@ -43,6 +43,7 @@ bool s2Covered=false;
 
 bool doorOpen=false;
 bool personDone=false;
+bool doorJustClosed=false;
 
 //the distance to the wall, subject to change
 
@@ -52,6 +53,9 @@ const int threshold=1250;
 //i can reuse this for changing from detecting to finished
 unsigned long stateStartTime = 0;
 
+//time both sensors have been continuously clear in WAIT_CLEAR
+unsigned long clearStartTime = 0;
+const unsigned long CLEAR_DWELL_MS = 500;
 
 //when you have the door distance (idle) put that in this variable
 //doorDist=wallDist-(amt in mm)
@@ -171,8 +175,9 @@ void loop() {
   switch (currentState)
   {
   case IDLE_SHUT:
-  if (s1Covered&&!s2Covered&&!doorOpen) {
+if (s1Covered&&!s2Covered&&!doorOpen) {
     // door not open yet, this is the door opening
+    doorJustClosed=false;
     currentState = ENTERING_DOOR;
     stateStartTime = millis();
   } else if (s1Covered&&!s2Covered&&doorOpen&&!personDone) {
@@ -192,6 +197,7 @@ void loop() {
     Serial.println("DOOR CLOSE TICK (s1 first)");
     doorOpen=false;
     personDone=false;
+    doorJustClosed=true;
     currentState=WAIT_CLEAR;
     stateStartTime = millis();
   }
@@ -259,6 +265,7 @@ void loop() {
       Serial.println("DOOR LEAVE TICK");
       doorOpen=false;
       personDone=false;
+      doorJustClosed=true;
       currentState=IDLE_SHUT;
     } else if (millis() - stateStartTime > 2000) {
       doorOpen=false;
@@ -271,16 +278,25 @@ void loop() {
     break;
   case WAIT_CLEAR:
     if(!s1Covered&&!s2Covered){
-      if(doorOpen){
-        // still tracking a door cycle, go back to IDLE_SHUT
-        // to wait for the next person or door-close event
-        currentState = IDLE_SHUT;
-      } else if((dist1>wallDist)&&(dist2>wallDist)){
-        currentState = IDLE_SHUT;
-      } else {
-        // door is propped open, no door ticks needed
-        currentState = IDLE_OPEN;
+      // start or continue timing how long both sensors are clear
+      if(clearStartTime==0) clearStartTime=millis();
+      // wait for sensors to stay clear long enough for door to settle
+      if(millis() - clearStartTime >= CLEAR_DWELL_MS){
+        clearStartTime=0;
+        if(doorOpen || doorJustClosed){
+          // still tracking a door cycle or just closed, go to IDLE_SHUT
+          doorJustClosed=false;
+          currentState = IDLE_SHUT;
+        } else if((dist1>wallDist)&&(dist2>wallDist)){
+          currentState = IDLE_SHUT;
+        } else {
+          // door is propped open, no door ticks needed
+          currentState = IDLE_OPEN;
+        }
       }
+    } else {
+      // a sensor got re-covered (door bounce), reset the clear timer
+      clearStartTime=0;
     }
 
     break;
