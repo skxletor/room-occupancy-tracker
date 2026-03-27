@@ -24,7 +24,7 @@ uint16_t initDist;
 
 enum State{
   IDLE_SHUT,
-  IDLE_OPEN,
+  // IDLE_OPEN,
   ENTERING,
   ENTERING_DOOR,
   LEAVING,
@@ -202,16 +202,16 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
     stateStartTime = millis();
   }
   break;
-  case IDLE_OPEN:
-  // door is physically propped open, no door ticks needed
-  if (s1Covered&&!s2Covered) {
-    currentState = ENTERING;
-    stateStartTime = millis();
-  } else if (s2Covered&&!s1Covered) {
-    currentState = LEAVING;
-    stateStartTime = millis();
-  }
-  break;
+  // case IDLE_OPEN:
+  // // door is physically propped open, no door ticks needed
+  // if (s1Covered&&!s2Covered) {
+  //   currentState = ENTERING;
+  //   stateStartTime = millis();
+  // } else if (s2Covered&&!s1Covered) {
+  //   currentState = LEAVING;
+  //   stateStartTime = millis();
+  // }
+  // break;
   case ENTERING_DOOR:
     delay(10);
     if(s2Covered){
@@ -222,7 +222,9 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
       else{
-        currentState = IDLE_OPEN;}
+        // currentState = IDLE_OPEN;
+        Serial.println("this WOULD have set it to idle open")
+        }
     }
   break;
   case ENTERING:
@@ -238,7 +240,9 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
       else{
-        currentState = IDLE_OPEN;}
+        // currentState = IDLE_OPEN;
+        Serial.println("this WOULD have set it to idle open")
+        }
     }
     break;
   case LEAVING:
@@ -256,7 +260,9 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
       else{
-        currentState = IDLE_OPEN;}
+        // currentState = IDLE_OPEN;
+        Serial.println("this WOULD have set it to idle open")
+        }
     }
     break;
   case LEAVING_DOOR:
@@ -273,7 +279,9 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       if ((dist1>wallDist)||(dist2>wallDist)){
         currentState = IDLE_SHUT;}
       else{
-        currentState = IDLE_OPEN;}
+        // currentState = IDLE_OPEN;
+        Serial.println("this WOULD have set it to idle open")
+        }
     }
     break;
   case WAIT_CLEAR:
@@ -291,7 +299,8 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
           currentState = IDLE_SHUT;
         } else {
           // door is propped open, no door ticks needed
-          currentState = IDLE_OPEN;
+          // currentState = IDLE_OPEN;
+          Serial.println("this WOULD have set it to idle open")
         }
       }
     } else {
