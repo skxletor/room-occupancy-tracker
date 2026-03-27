@@ -48,7 +48,7 @@ bool doorJustClosed=false;
 //the distance to the wall, subject to change
 
 int wallDist;
-const int threshold=1250;
+const int threshold=660;//26 inches
 
 //i can reuse this for changing from detecting to finished
 unsigned long stateStartTime = 0;
