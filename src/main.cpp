@@ -67,6 +67,9 @@ const unsigned long CLEAR_DWELL_MS = 500;
 //doorDist=wallDist-(amt in mm)
 int doorDist;
 
+unsigned long personDoneTime = 0;
+const unsigned long DOOR_AUTO_CLOSE_MS = 10000;
+
 int count=0;
 
 void postEvent(const char* message) {
@@ -117,6 +120,7 @@ void setup() {
   }
 
   Serial.println("\nConnected!");
+  postEvent("Connected to WiFi");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
@@ -214,7 +218,13 @@ if (sensor2.timeoutOccurred()) {
   switch (currentState)
   {
   case IDLE_SHUT:
-if (s1Covered&&!s2Covered&&!doorOpen) {
+if (doorOpen && personDone && personDoneTime > 0 && (millis() - personDoneTime >= DOOR_AUTO_CLOSE_MS)) {
+    Serial.println("DOOR AUTO-CLOSE (10s timeout)");
+    postEvent("DOOR AUTO-CLOSE (10s timeout)");
+    doorOpen = false;
+    personDone = false;
+    personDoneTime = 0;
+} else if (s1Covered&&!s2Covered&&!doorOpen) {
     // door not open yet, this is the door opening
     doorJustClosed=false;
     currentState = ENTERING_DOOR;
@@ -280,6 +290,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       String countMsg = "People in room: " + String(count);
       postEvent(countMsg.c_str());
       personDone=true;
+      personDoneTime=millis();
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
       if ((dist1>wallDist)||(dist2>wallDist)){
@@ -304,6 +315,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       String countMsg = "People in room: " + String(count);
       postEvent(countMsg.c_str());
       personDone=true;
+      personDoneTime=millis();
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
       if ((dist1>wallDist)||(dist2>wallDist)){
