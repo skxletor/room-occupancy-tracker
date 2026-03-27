@@ -223,7 +223,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
         currentState = IDLE_SHUT;}
       else{
         // currentState = IDLE_OPEN;
-        Serial.println("this WOULD have set it to idle open")
+        Serial.println("this WOULD have set it to idle open");
         }
     }
   break;
@@ -241,7 +241,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
         currentState = IDLE_SHUT;}
       else{
         // currentState = IDLE_OPEN;
-        Serial.println("this WOULD have set it to idle open")
+        Serial.println("this WOULD have set it to idle open");
         }
     }
     break;
@@ -261,7 +261,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
         currentState = IDLE_SHUT;}
       else{
         // currentState = IDLE_OPEN;
-        Serial.println("this WOULD have set it to idle open")
+        Serial.println("this WOULD have set it to idle open");
         }
     }
     break;
@@ -280,7 +280,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
         currentState = IDLE_SHUT;}
       else{
         // currentState = IDLE_OPEN;
-        Serial.println("this WOULD have set it to idle open")
+        Serial.println("this WOULD have set it to idle open");
         }
     }
     break;
@@ -300,7 +300,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
         } else {
           // door is propped open, no door ticks needed
           // currentState = IDLE_OPEN;
-          Serial.println("this WOULD have set it to idle open")
+          Serial.println("this WOULD have set it to idle open");
         }
       }
     } else {
