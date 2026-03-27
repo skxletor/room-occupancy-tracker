@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <VL53L1X.h>
 #include <WiFi.h>
+#include <HTTPClient.h>
 
 const char* ssid     = "PAWS-Secure";
 const char* identity = "jpr99061";        // just your MyID, e.g. "jr01234"
@@ -9,7 +10,7 @@ const char* username = "jpr99061";        // same as identity
 const char* password = "UniGAJR123$$";
 
 
-const char* serverURL = "url for the esp occupancy";
+const char* serverURL = "https://esp32-projects-node.onrender.com/occupancy/event";
 
 // put function declarations here:
 
@@ -21,6 +22,11 @@ const int SCL_PIN= 22;
 const int XSHUT1_PIN= 23;
 const int XSHUT2_PIN= 32;
 uint16_t initDist;
+
+
+unsigned long lastS1TimeoutPost = 0;
+unsigned long lastS2TimeoutPost = 0;
+const unsigned long TIMEOUT_COOLDOWN_MS = 5000; // only post once every 5 seconds
 
 enum State{
   IDLE_SHUT,
@@ -63,6 +69,23 @@ int doorDist;
 
 int count=0;
 
+void postEvent(const char* message) {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  HTTPClient http;
+  http.begin(serverURL);
+  http.addHeader("Content-Type", "application/json");
+
+  // build the JSON body manually — simple enough we don't need a library
+  String body = "{\"message\":\"";
+  body += message;
+  body += "\",\"count\":";
+  body += count;
+  body += "}";
+
+  http.POST(body);
+  http.end();
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -140,14 +163,22 @@ void setup() {
 
 void loop() {
   uint16_t dist1 = sensor1.read();
-  if (sensor1.timeoutOccurred()) {
-    Serial.println("Sensor 1 TIMEOUT");
+if (sensor1.timeoutOccurred()) {
+  Serial.println("Sensor 1 TIMEOUT");
+  if (millis() - lastS1TimeoutPost > TIMEOUT_COOLDOWN_MS) {
+    postEvent("Sensor 1 TIMEOUT");
+    lastS1TimeoutPost = millis();
   }
+}
 
   uint16_t dist2 = sensor2.read();
-  if (sensor2.timeoutOccurred()) {
-    Serial.println("Sensor 2 TIMEOUT");
+if (sensor2.timeoutOccurred()) {
+  Serial.println("Sensor 2 TIMEOUT");
+  if (millis() - lastS2TimeoutPost > TIMEOUT_COOLDOWN_MS) {
+    postEvent("Sensor 2 TIMEOUT");
+    lastS2TimeoutPost = millis();
   }
+}
 
 
  
@@ -195,6 +226,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
   } else if (s1Covered&&!s2Covered&&doorOpen&&personDone) {
     // person done, door closing from s1 side (reverse of LEAVING_DOOR)
     Serial.println("DOOR CLOSE TICK (s1 first)");
+    postEvent("DOOR CLOSE TICK (s1 first)");
     doorOpen=false;
     personDone=false;
     doorJustClosed=true;
@@ -216,6 +248,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
     delay(10);
     if(s2Covered){
       Serial.println("DOOR ENTER TICK");
+      postEvent("DOOR ENTER TICK");
       doorOpen=true;
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
@@ -224,6 +257,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       else{
         // currentState = IDLE_OPEN;
         Serial.println("this WOULD have set it to idle open");
+        postEvent("this WOULD have set it to idle open");
         }
     }
   break;
@@ -232,8 +266,11 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
     if(s2Covered){
       count++;
       Serial.println("ENTERING");
+      postEvent("ENTERING");
       Serial.print("People in room: ");
       Serial.println(count);
+      String countMsg = "People in room: " + String(count);
+      postEvent(countMsg.c_str());
       personDone=true;
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
@@ -242,6 +279,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       else{
         // currentState = IDLE_OPEN;
         Serial.println("this WOULD have set it to idle open");
+        postEvent("this WOULD have set it to idle open");
         }
     }
     break;
@@ -252,8 +290,11 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
         count--;
       }
       Serial.println("LEAVING");
+      postEvent("LEAVING");
       Serial.print("People in room: ");
       Serial.println(count);
+      String countMsg = "People in room: " + String(count);
+      postEvent(countMsg.c_str());
       personDone=true;
       currentState=WAIT_CLEAR;
     } else if (millis() - stateStartTime > 2000) {
@@ -262,6 +303,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       else{
         // currentState = IDLE_OPEN;
         Serial.println("this WOULD have set it to idle open");
+        postEvent("this WOULD have set it to idle open");
         }
     }
     break;
@@ -269,6 +311,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
     delay(10);
     if(s1Covered){
       Serial.println("DOOR LEAVE TICK");
+      postEvent("DOOR LEAVE TICK");
       doorOpen=false;
       personDone=false;
       doorJustClosed=true;
@@ -281,6 +324,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
       else{
         // currentState = IDLE_OPEN;
         Serial.println("this WOULD have set it to idle open");
+        postEvent("this WOULD have set it to idle open");
         }
     }
     break;
@@ -301,6 +345,7 @@ if (s1Covered&&!s2Covered&&!doorOpen) {
           // door is propped open, no door ticks needed
           // currentState = IDLE_OPEN;
           Serial.println("this WOULD have set it to idle open");
+          postEvent("this WOULD have set it to idle open");
         }
       }
     } else {
