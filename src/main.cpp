@@ -83,7 +83,15 @@ void postEvent(const char* message) {
   body += count;
   body += "}";
 
-  http.POST(body);
+  int httpCode = http.POST(body);
+  if (httpCode == 200) {
+    String response = http.getString();
+    // find "count": in the response and parse the number after it
+    int idx = response.indexOf("\"count\":");
+    if (idx != -1) {
+      count = response.substring(idx + 8).toInt();
+    }
+  }
   http.end();
 }
 
