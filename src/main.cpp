@@ -69,25 +69,25 @@ void setup() {
   
   Serial.begin(115200);
 
-  // //wifi section
-  // Serial.println("Connecting to PAWS-Secure...");
-  // WiFi.disconnect(true);
-  // WiFi.begin(ssid, WPA2_AUTH_PEAP, identity, username, password);
+  //wifi section
+  Serial.println("Connecting to PAWS-Secure...");
+  WiFi.disconnect(true);
+  WiFi.begin(ssid, WPA2_AUTH_PEAP, identity, username, password);
 
-  // int counter = 0;
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(500);
-  //   Serial.print(".");
-  //   counter++;
-  //   if (counter >= 60) {
-  //     Serial.println("\nTimed out. Restarting...");
-  //     ESP.restart();
-  //   }
-  // }
+  int counter = 0;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    counter++;
+    if (counter >= 60) {
+      Serial.println("\nTimed out. Restarting...");
+      ESP.restart();
+    }
+  }
 
-  // Serial.println("\nConnected!");
-  // Serial.print("IP address: ");
-  // Serial.println(WiFi.localIP());
+  Serial.println("\nConnected!");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 
 //pin setup, wire setup, etc.
 
